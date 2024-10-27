@@ -1,84 +1,52 @@
-def is_int(s):
-    """
-    Проверка на то, что s - целое число
-    """
-    try:
-        if type(s) is int:
-            return True
-        if s is None:
-            return False
-        if not s.isdecimal():
-            return False
-        int(s)
-        return True
-    except (Exception, ValueError, TypeError):
-        return False
+from menu_template import start_menu
 
 
-def entering_valid_value_integer(message_input: str, message_err: str, template: list):
-    """
-    Ввод допустимого целого числа
-    :param message_input: Сообщение перед вводом
-    :param message_err:   Сообщение при вводе символа, не из шаблона
-    :param template:      Список допустимых значений
-    :return: целое число
-    """
-    while True:
-        ch = input(message_input, )
-        if is_int(ch):
-            ch = int(ch)
-            if ch in template:
-                return ch
-        print(message_err)
+def menu_f1():
+    print('f1(x)')
+    input("pause", )
+
+
+def menu_f2():
+    print('f2(x)')
+
+
+def menu_g1():
+    print('g1(x)')
+    input("pause", )
+
+
+def menu_g2():
+    print('g2(x)')
+    input("pause", )
 
 
 def menu_sub1():
     """
-    Однократное выполнение действия и возврат в главное меню
+    Однократное выполнение действия и возврат в главное меню.
     """
     # Ввод корректного ch
     caption_start = "menu_sub1 \n 1) f1(x) \n 2) f2(x) \n 0) return \n"
     caption_err = 'err'
-    template = [1, 2, 0]
-    ch = entering_valid_value_integer(caption_start,
-                                      caption_err,
-                                      template)
-    # Выбор действия
-    match ch:
-        case 1:
-            print('f1(x)')
-            input("pause", )
-        case 2:
-            print('f2(x)')
-            input("pause", )
-    # возврат в главное меню
+    menu_template = {
+        0: (lambda: True, True),
+        1: (menu_f1, True),
+        2: (menu_f2, True)}
+        
+    start_menu(caption_start, caption_err, menu_template)
 
 
 def menu_sub2():
     """
-    Циклическое. возврат в главное меню только через пункт 0
+    Циклическое. Возврат в главное меню только через пункт 0.
     """
-
     caption_start = "menu_sub2 \n 1) g1(x) \n 2) g2(x) \n 0) return \n"
-    caption_err = 'err'
-    template = [1, 2, 0]
-
-    while True:
-        # Ввод корректного ch
-        ch = entering_valid_value_integer(caption_start,
-                                          caption_err,
-                                          template)
-        # Выбор действия
-        match ch:
-            case 1:
-                print('g1(x)')
-                input("pause", )
-            case 2:
-                print('g2(x)')
-                input("pause", )
-            case 0:
-                break
-    # возврат в главное меню
+    caption_err = 'err'   
+    menu_template = {
+        0: (lambda: True, True),
+        1: (menu_g1, False),
+        2: (menu_g2, False)}
+    
+    start_menu(caption_start, caption_err, menu_template)
 
 
 def menu_main():
@@ -87,23 +55,13 @@ def menu_main():
     """
     caption_start = "menu_main \n 1) menu_sub1 \n 2) menu_sub2 \n 0) exit \n"
     caption_err = 'err'
-    template = [1, 2, 0]
-    while True:
-        # Ввод корректного ch
-        ch = entering_valid_value_integer(caption_start,
-                                          caption_err,
-                                          template)
-        # Выбор действия
-        match ch:
-            case 1:
-                menu_sub1()
-            case 2:
-                menu_sub2()
-            case 0:
-                break
-    # завершение программы
+    menu_template = {
+        0: (lambda: True, True),
+        1: (menu_sub1, False),
+        2: (menu_sub2, False)}  
+    start_menu(caption_start, caption_err, menu_template)
 
 
 if __name__ == "__main__":
     menu_main()
-    # exit(0)
+    exit(0)
