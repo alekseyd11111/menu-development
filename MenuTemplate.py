@@ -1,3 +1,38 @@
+# Exception
+class ExMenu(Exception):
+    """
+    Класс ошибок для MenuTemplate
+    """
+    def __init__(self, *args, **kwargs):
+        message = self._do_message(*args, **kwargs)
+        # тут можно логировать ошибки в файл
+        super().__init__(message)
+
+    def _do_message(self, *args, **kwargs) -> str:
+        """
+        Сообщение об ошибке.
+        Переопределяется в потомках
+        """
+        return ''
+
+
+class ExMenuInvalidKey(ExMenu):
+    """
+    Повтор названия пункта меню
+    """
+    def _do_message(self, key):
+        return f'the key "{key}" already exists'
+
+
+class ExMenuEmpty(ExMenu):
+    """
+    Запуск меню без пунктов
+    """
+    def _do_message(self):
+        return 'Меню пустое'
+# Exception-------------------
+
+
 class MenuTemplate:
     """
     Класс для создания меню
@@ -7,16 +42,13 @@ class MenuTemplate:
                  start_message="",
                  key_separator=".",
                  invalid_key_message='invalid_key'):
-        self.message_start = start_message
-        self.key_separator = key_separator
-        self.message_invalid_key = invalid_key_message
+        self._message_start = start_message
+        self._key_separator = key_separator
+        self._message_invalid_key = invalid_key_message
 
         # пункты меню
-        self.items = {}
+        self._items = {}
 
-    # 5)
-    # menu.add_item("1", "f11(x)", lambda: print("f11"))
-    # menu.add_item("1", "f1(x)", lambda: print("f1"))
     def add_item(self,
                  key: str,
                  message: str,
@@ -26,45 +58,47 @@ class MenuTemplate:
         Добавление пункта меню
         :param key:     уникальный символ пункта меню
         :param message: текст пункта меню
-        :param command: функция, которая вызовиться
-        :param is_exit: выход из меню после выполненения этого пункта
+        :param command: функция, которая вызовется
+        :param is_exit: выход из меню после выполнения этого пункта
         """
-        if key in self.items:
-            raise Exception(f'the key "{key}" already exists')
+        if key in self._items:
+            raise ExMenuInvalidKey(key)
 
         if command is None:
             def _pass():
                 pass
             command = _pass
 
-        self.items[key] = {'message': message, 'command': command, 'is_exit': is_exit}
+        self._items[key] = {'message': message, 'command': command, 'is_exit': is_exit}
 
-    # 6)
     def start(self):
         """
         Запуск вечного цикла меню
         """
+        if len(self._items) == 0:
+            raise ExMenuEmpty()
+
         is_exit = False
         while not is_exit:
             # печать меню
-            self.show()
+            self._show()
             # Ввод пункта меню
             key = input()
-            if key in self.items:
+            if key in self._items:
                 # Выбор действия
-                self.items[key]['command']()
+                self._items[key]['command']()
                 # выход из меню
-                is_exit = self.items[key]['is_exit']
+                is_exit = self._items[key]['is_exit']
             else:
-                print(self.message_invalid_key)
+                print(self._message_invalid_key)
 
-    def show(self):
+    def _show(self):
         """
         Вывод в консоль названия меню и его пунктов
         """
-        print(self.message_start)
-        for key, value in self.items.items():
-            print(f"{key}{self.key_separator} {value['message']}")
+        print(self._message_start)
+        for key, value in self._items.items():
+            print(f"{key}{self._key_separator} {value['message']}")
 
 
 if __name__ == "__main__":
@@ -72,11 +106,14 @@ if __name__ == "__main__":
     menu = MenuTemplate(start_message="menu_main",
                         key_separator=")"
                         )
-    #menu.add_item("1", "f11(x)", lambda: print("f11"))
+
+    # menu.start()
+    # menu.add_item("1", "f11(x)", lambda: print("f11"))
     menu.add_item("1", "f1(x)", lambda: print("f1"))
     menu.add_item("2", "f2(x)", lambda: print("f2"))
     menu.add_item("0", "exit", is_exit=True)
+    # print(menu._items)
+    # menu.items["2"]['command']()
     menu.start()
 
-    #menu.items["2"]['command']()
     exit(0)
